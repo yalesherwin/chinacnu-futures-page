@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>chinacnu 期货 | 自主交易系统</title>
+  <style>
+    :root{--bg:#07111f;--card:#0f1c33;--line:#28426e;--text:#eaf2ff;--muted:#9fb4d8;--ok:#58f58a;--warn:#ffd166}
+    *{box-sizing:border-box} body{margin:0;background:radial-gradient(circle at 15% 0%,#1f3f75 0,transparent 40%),radial-gradient(circle at 100% 100%,#1e4d4a 0,transparent 45%),var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC",sans-serif}
+    .wrap{max-width:1120px;margin:auto;padding:24px}
+    h1{margin:0;font-size:36px}.sub{color:var(--muted);margin-top:6px}
+    .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:14px}
+    .card{background:rgba(15,28,51,.9);border:1px solid var(--line);border-radius:14px;padding:14px}
+    .k{color:var(--muted);font-size:13px}.v{font-size:28px;font-weight:800}
+    .section{margin-top:14px}
+    table{width:100%;border-collapse:collapse} th,td{border:1px solid #2c4674;padding:8px;font-size:14px} th{background:#132748}
+    .pill{display:inline-block;padding:4px 10px;border-radius:999px;background:#17325e;border:1px solid #2b5aa3;font-size:12px;margin-right:6px}
+    .ok{color:var(--ok)} .warn{color:var(--warn)}
+    a{color:#9dd2ff}
+  </style>
+</head>
+<body>
+<div class="wrap">
+  <h1>chinacnu 期货</h1>
+  <div class="sub">热卷（HC）+ 燃油（FU）自主交易系统（研究/信号/风控/执行）</div>
+
+  <div class="grid">
+    <div class="card"><div class="k">系统模式</div><div class="v">Paper</div><div class="k">先模拟，后实盘</div></div>
+    <div class="card"><div class="k">核心标的</div><div class="v">HC · FU</div><div class="k">1分钟策略轮询</div></div>
+    <div class="card"><div class="k">数据来源</div><div class="v">RQData</div><div class="k">股票/期货多市场覆盖</div></div>
+  </div>
+
+  <div class="card section">
+    <h3>系统架构</h3>
+    <div>
+      <span class="pill">Data: RQData</span>
+      <span class="pill">Strategy: EMA趋势</span>
+      <span class="pill">Risk: 止损/限仓/日亏限制</span>
+      <span class="pill">Execution: Paper Executor</span>
+      <span class="pill">API: FastAPI</span>
+    </div>
+  </div>
+
+  <div class="card section">
+    <h3>策略规则（V1）</h3>
+    <table>
+      <tr><th>策略</th><th>条件</th><th>动作</th><th>风控</th></tr>
+      <tr><td>HC 趋势</td><td>EMA20 上穿 EMA60</td><td class="ok">BUY</td><td>止损0.8%，止盈1.2%</td></tr>
+      <tr><td>HC 反转</td><td>EMA20 下穿 EMA60</td><td class="warn">SELL</td><td>单品种最大3手</td></tr>
+      <tr><td>FU 趋势</td><td>同上逻辑</td><td>BUY/SELL</td><td>日内最大亏损2%停机</td></tr>
+    </table>
+  </div>
+
+  <div class="card section">
+    <h3>上线状态</h3>
+    <ul>
+      <li>✅ 页面已上线（本页）</li>
+      <li>✅ Python系统骨架已生成（app/data/strategy/executor）</li>
+      <li>⚠️ 实盘前需接券商/期货接口与合规风控审批</li>
+    </ul>
+  </div>
+
+  <div class="card section">
+    <h3>下一步（建议）</h3>
+    <ol>
+      <li>接入 RQData 账号并验证 `/health`</li>
+      <li>跑1周 paper trading，观察回撤与胜率</li>
+      <li>加入交易时段过滤（夜盘/日盘）与滑点模型</li>
+      <li>通过风控门槛后再接实盘通道</li>
+    </ol>
+  </div>
+
+  <div class="sub">说明：本系统用于量化研究与执行工程，不构成收益承诺。</div>
+</div>
+</body>
+</html>
