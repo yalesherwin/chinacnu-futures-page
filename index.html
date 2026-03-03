@@ -5,127 +5,180 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>chinacnu 期货 · Trading Dashboard</title>
   <style>
-    :root{
-      --bg:#070d18;--panel:#101a2c;--panel2:#0d1626;--line:#253a5f;
-      --text:#eaf1ff;--muted:#9ab0d3;--cyan:#57d8ff;--green:#42df83;--red:#ff6380;--yellow:#ffca57;
-    }
-    *{box-sizing:border-box}
-    body{margin:0;color:var(--text);font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC",sans-serif;
-      background:radial-gradient(1100px 480px at 15% -10%, rgba(73,132,255,.25), transparent 60%),
-      radial-gradient(900px 360px at 100% 120%, rgba(37,173,134,.2), transparent 70%),var(--bg);
-    }
-    .wrap{max-width:1280px;margin:0 auto;padding:22px}
-    .top{display:flex;justify-content:space-between;align-items:flex-end;gap:12px;flex-wrap:wrap}
-    h1{margin:0;font-size:34px}
-    .sub{color:var(--muted);margin-top:6px}
-    .tag{font-size:12px;font-weight:700;padding:6px 10px;border:1px solid #2d558b;background:#0f2040;color:#9dd8ff;border-radius:999px}
-
-    .kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:14px}
-    .kpi{background:linear-gradient(160deg,var(--panel),var(--panel2));border:1px solid var(--line);border-radius:14px;padding:14px}
-    .k{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.8px}
-    .v{font-size:28px;font-weight:800;margin-top:4px}
-
-    .grid{display:grid;grid-template-columns:1.6fr .9fr;gap:12px;margin-top:12px}
-    .card{background:linear-gradient(170deg,var(--panel),var(--panel2));border:1px solid var(--line);border-radius:14px;padding:14px}
-    .card h3{margin:0 0 10px;color:#cfe1ff}
-
-    .kline{
-      height:350px;border:1px dashed #3a5788;border-radius:10px;
-      background:linear-gradient(180deg,#0a1220,#0b1424);
-      display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden;
-    }
-    .kline::before,.kline::after{content:"";position:absolute;inset:0;background-image:linear-gradient(to right, rgba(87,216,255,.09) 1px, transparent 1px),linear-gradient(to bottom, rgba(87,216,255,.08) 1px, transparent 1px);background-size:44px 44px;pointer-events:none}
-    .kline span{z-index:1;color:#8fb0de}
-
-    .signals{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
-    .sig{border:1px solid #2f4f80;background:#10223f;border-radius:10px;padding:10px;text-align:center}
-    .lamp{width:12px;height:12px;border-radius:50%;display:inline-block;margin-right:6px}
-    .on{background:var(--green);box-shadow:0 0 8px var(--green)}
-    .wait{background:var(--yellow);box-shadow:0 0 8px var(--yellow)}
-    .off{background:var(--red);box-shadow:0 0 8px var(--red)}
-
-    table{width:100%;border-collapse:collapse}
-    th,td{border:1px solid #2a456f;padding:9px;font-size:14px}
-    th{background:#132747;text-align:left}
-
-    .risk li{margin:7px 0;color:#d5e4ff}
-    .risk b{color:#ffe8b0}
-
-    .orders{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
-    .btn{border:none;border-radius:10px;padding:11px 10px;font-weight:800;color:#fff;cursor:pointer}
-    .btn.long{background:linear-gradient(180deg,#1f9f5b,#167642)}
-    .btn.short{background:linear-gradient(180deg,#b84f63,#8f3244)}
-    .btn.flat{background:linear-gradient(180deg,#5b6b8c,#404f6c)}
-    .note{color:var(--muted);font-size:12px;margin-top:8px}
-
-    @media (max-width:960px){
-      .kpis{grid-template-columns:repeat(2,1fr)}
-      .grid{grid-template-columns:1fr}
-      .orders{grid-template-columns:1fr}
-    }
+    :root{--bg:#070d18;--panel:#101a2c;--line:#253a5f;--text:#eaf1ff;--muted:#9ab0d3;--green:#42df83;--red:#ff6380;--yellow:#ffca57}
+    *{box-sizing:border-box} body{margin:0;color:var(--text);font-family:Inter,-apple-system,"PingFang SC",sans-serif;background:var(--bg)}
+    .wrap{max-width:1280px;margin:0 auto;padding:22px}.top{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
+    h1{margin:0;font-size:34px}.sub{color:var(--muted);margin-top:6px}.tag{font-size:12px;font-weight:700;padding:6px 10px;border:1px solid #2d558b;background:#0f2040;border-radius:999px}
+    .kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:14px}.kpi{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:14px}
+    .k{font-size:12px;color:var(--muted)} .v{font-size:28px;font-weight:800;margin-top:4px}
+    .grid{display:grid;grid-template-columns:1.6fr .9fr;gap:12px;margin-top:12px}.card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:14px}
+    .card h3{margin:0 0 10px}.kline{height:350px;border:1px dashed #3a5788;border-radius:10px;position:relative;overflow:hidden;background:#0b1424}
+    canvas{width:100%;height:100%}.price-row{display:flex;gap:8px;margin:10px 0;flex-wrap:wrap}.chip{padding:6px 10px;border-radius:999px;border:1px solid #395c92;background:#10223f}
+    .signals{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}.sig{border:1px solid #2f4f80;background:#10223f;border-radius:10px;padding:10px;text-align:center}
+    .lamp{width:12px;height:12px;border-radius:50%;display:inline-block;margin-right:6px}.on{background:var(--green)}.wait{background:var(--yellow)}.off{background:var(--red)}
+    .orders{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.btn{border:none;border-radius:10px;padding:11px 10px;font-weight:800;color:#fff;cursor:pointer}
+    .long{background:#1a8f52}.short{background:#a54357}.flat{background:#4c5e7f}.note{color:var(--muted);font-size:12px;margin-top:8px}
+    .log{height:160px;overflow:auto;background:#0a1220;border:1px solid #2a456f;border-radius:10px;padding:10px;font-size:12px;white-space:pre-wrap}
+    select,input{background:#0c1930;color:#fff;border:1px solid #2b4e82;border-radius:8px;padding:8px}
+    .ctrl{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px}
+    @media (max-width:960px){.kpis{grid-template-columns:repeat(2,1fr)}.grid{grid-template-columns:1fr}.orders{grid-template-columns:1fr}}
   </style>
 </head>
 <body>
-  <div class="wrap">
-    <div class="top">
-      <div>
-        <h1>chinacnu 期货</h1>
-        <div class="sub">实时交易驾驶舱（HC 热卷 / FU 燃油）· 包含上单、下单、平仓控制</div>
-      </div>
-      <div class="tag">DASHBOARD V3</div>
+<div class="wrap">
+  <div class="top">
+    <div>
+      <h1>chinacnu 期货</h1>
+      <div class="sub">真实API联动版（HC/FU）· 实时行情 + 上单/下单/平仓</div>
     </div>
+    <div class="tag" id="statusTag">API: CONNECTING</div>
+  </div>
 
-    <div class="kpis">
-      <div class="kpi"><div class="k">交易模式</div><div class="v">AUTO</div></div>
-      <div class="kpi"><div class="k">今日上限</div><div class="v">10单</div></div>
-      <div class="kpi"><div class="k">监控标的</div><div class="v">HC · FU</div></div>
-      <div class="kpi"><div class="k">风控状态</div><div class="v">ACTIVE</div></div>
-    </div>
+  <div class="kpis">
+    <div class="kpi"><div class="k">后端</div><div class="v" id="backendVal">--</div></div>
+    <div class="kpi"><div class="k">HC 最新价</div><div class="v" id="hcPrice">--</div></div>
+    <div class="kpi"><div class="k">FU 最新价</div><div class="v" id="fuPrice">--</div></div>
+    <div class="kpi"><div class="k">今日上限</div><div class="v">10单</div></div>
+  </div>
 
-    <div class="grid">
-      <div class="card">
-        <h3>实时K线占位区</h3>
-        <div class="kline"><span>Realtime K-Line Placeholder（接入API后替换为实时图）</span></div>
+  <div class="grid">
+    <div class="card">
+      <h3>实时K线</h3>
+      <div class="ctrl">
+        <select id="symbolSel"><option value="HC">HC 热卷</option><option value="FU">FU 燃油</option></select>
+        <button class="btn flat" onclick="loadKline()">刷新K线</button>
       </div>
-      <div class="card">
-        <h3>策略信号灯</h3>
-        <div class="signals">
-          <div class="sig"><span class="lamp on"></span>趋势做多</div>
-          <div class="sig"><span class="lamp wait"></span>观望等待</div>
-          <div class="sig"><span class="lamp off"></span>风险警戒</div>
-        </div>
-
-        <h3 style="margin-top:14px">风险面板</h3>
-        <ul class="risk">
-          <li>日内最大亏损：<b>2%</b>（触发即停机）</li>
-          <li>单品种最大持仓：<b>3手</b></li>
-          <li>单笔止损：<b>0.8%</b> / 止盈：<b>1.2%</b></li>
-          <li>每日本策略最大交易：<b>10单</b></li>
-        </ul>
+      <div class="kline"><canvas id="klineCanvas" width="900" height="350"></canvas></div>
+      <div class="price-row">
+        <div class="chip" id="hcChip">HC: --</div>
+        <div class="chip" id="fuChip">FU: --</div>
       </div>
     </div>
 
-    <div class="grid">
-      <div class="card">
-        <h3>执行动作（上单 / 下单 / 平仓）</h3>
-        <div class="orders">
-          <button class="btn long">上单（开多）</button>
-          <button class="btn short">下单（开空）</button>
-          <button class="btn flat">平仓（全部）</button>
-        </div>
-        <div class="note">当前为前端控制台展示按钮，接入你的交易API后可映射为真实下单指令。</div>
+    <div class="card">
+      <h3>策略信号灯</h3>
+      <div class="signals">
+        <div class="sig"><span class="lamp on"></span>趋势做多</div>
+        <div class="sig"><span class="lamp wait"></span>观望等待</div>
+        <div class="sig"><span class="lamp off"></span>风险警戒</div>
       </div>
-      <div class="card">
-        <h3>策略规则摘要</h3>
-        <table>
-          <tr><th>规则</th><th>内容</th></tr>
-          <tr><td>开多</td><td>EMA20 上穿 EMA60 + 风控通过</td></tr>
-          <tr><td>开空</td><td>EMA20 下穿 EMA60 + 风控通过</td></tr>
-          <tr><td>平仓</td><td>止损/止盈/风控停机/人工触发</td></tr>
-          <tr><td>通知</td><td>每次交易推送 Telegram</td></tr>
-        </table>
+      <h3 style="margin-top:14px">执行动作（真实API）</h3>
+      <div class="orders">
+        <button class="btn long" onclick="sendOrder('BUY','OPEN')">上单（开多）</button>
+        <button class="btn short" onclick="sendOrder('SELL','OPEN')">下单（开空）</button>
+        <button class="btn flat" onclick="sendOrder('SELL','CLOSE')">平仓（全部）</button>
       </div>
+      <div class="note">下单走本地后端 `/api/order`，token 不暴露在前端。</div>
     </div>
   </div>
+
+  <div class="card" style="margin-top:12px">
+    <h3>执行日志</h3>
+    <div class="log" id="logBox">系统启动中...</div>
+  </div>
+</div>
+
+<script>
+const API_BASE = window.API_BASE || 'http://127.0.0.1:8099';
+const logBox = document.getElementById('logBox');
+const statusTag = document.getElementById('statusTag');
+function log(msg){logBox.textContent = `[${new Date().toLocaleTimeString()}] ${msg}\n` + logBox.textContent;}
+
+function pickPrice(data){
+  if (!data) return null;
+  if (typeof data.last === 'number') return data.last;
+  if (data.data && typeof data.data.last === 'number') return data.data.last;
+  if (data.data && typeof data.data.price === 'number') return data.data.price;
+  return null;
+}
+
+async function checkHealth(){
+  try{
+    const r = await fetch(`${API_BASE}/health`); const j = await r.json();
+    document.getElementById('backendVal').textContent = j.ok ? 'ONLINE' : 'OFFLINE';
+    statusTag.textContent = j.ok ? 'API: CONNECTED' : 'API: ERROR';
+  }catch(e){
+    document.getElementById('backendVal').textContent = 'OFFLINE';
+    statusTag.textContent = 'API: DISCONNECTED';
+    log('后端未连接: ' + e.message);
+  }
+}
+
+async function loadRealtime(symbol){
+  try{
+    const r = await fetch(`${API_BASE}/api/market/realtime?symbol=${symbol}`);
+    const j = await r.json();
+    if(!j.ok) { log(`${symbol}实时失败: ${j.error || 'unknown'}`); return; }
+    const p = pickPrice(j.data);
+    if(symbol==='HC'){ document.getElementById('hcPrice').textContent = p ?? '--'; document.getElementById('hcChip').textContent = `HC: ${p ?? '--'}`; }
+    if(symbol==='FU'){ document.getElementById('fuPrice').textContent = p ?? '--'; document.getElementById('fuChip').textContent = `FU: ${p ?? '--'}`; }
+  }catch(e){ log(`${symbol}实时异常: ${e.message}`); }
+}
+
+function normalizeKlines(payload){
+  const raw = payload?.data?.klines || payload?.data?.bars || payload?.data || [];
+  if (!Array.isArray(raw)) return [];
+  return raw.map(x=>({
+    o:+(x.open ?? x.o ?? x[1] ?? 0),
+    h:+(x.high ?? x.h ?? x[2] ?? 0),
+    l:+(x.low ?? x.l ?? x[3] ?? 0),
+    c:+(x.close ?? x.c ?? x[4] ?? 0),
+  })).filter(x=>x.h && x.l);
+}
+
+function drawKline(kl){
+  const cv = document.getElementById('klineCanvas');
+  const ctx = cv.getContext('2d');
+  const w = cv.width, h = cv.height;
+  ctx.clearRect(0,0,w,h);
+  if(!kl.length){ ctx.fillStyle='#8fb0de'; ctx.fillText('暂无K线数据', 20, 30); return; }
+  const max = Math.max(...kl.map(k=>k.h));
+  const min = Math.min(...kl.map(k=>k.l));
+  const xGap = w / kl.length;
+  const mapY = v => (h - 20) - ((v - min) / (max - min || 1)) * (h - 40);
+  kl.forEach((k,i)=>{
+    const x = i*xGap + xGap/2;
+    const yo = mapY(k.o), yc = mapY(k.c), yh = mapY(k.h), yl = mapY(k.l);
+    const up = k.c >= k.o;
+    ctx.strokeStyle = up ? '#42df83' : '#ff6380';
+    ctx.fillStyle = up ? '#42df83' : '#ff6380';
+    ctx.beginPath(); ctx.moveTo(x,yh); ctx.lineTo(x,yl); ctx.stroke();
+    const bw = Math.max(3, xGap*0.6);
+    ctx.fillRect(x-bw/2, Math.min(yo,yc), bw, Math.max(1, Math.abs(yc-yo)));
+  });
+}
+
+async function loadKline(){
+  const symbol = document.getElementById('symbolSel').value;
+  try{
+    const r = await fetch(`${API_BASE}/api/market/kline?symbol=${symbol}&period=1m&limit=120`);
+    const j = await r.json();
+    if(!j.ok){ log(`K线失败: ${j.error || 'unknown'}`); drawKline([]); return; }
+    const kl = normalizeKlines(j);
+    drawKline(kl);
+    log(`${symbol} K线已更新: ${kl.length} 根`);
+  }catch(e){ log('K线异常: ' + e.message); }
+}
+
+async function sendOrder(side, offset){
+  const symbol = document.getElementById('symbolSel').value;
+  const body = { symbol, side, offset, qty: 1 };
+  try{
+    const r = await fetch(`${API_BASE}/api/order`, {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(body)});
+    const j = await r.json();
+    if(j.ok){ log(`下单成功 ${symbol} ${side}/${offset} -> ${JSON.stringify(j.data)}`); }
+    else { log(`下单失败 ${symbol} ${side}/${offset} -> ${j.error || 'unknown'}`); }
+  }catch(e){ log('下单异常: ' + e.message); }
+}
+
+async function bootstrap(){
+  await checkHealth();
+  await Promise.all([loadRealtime('HC'), loadRealtime('FU')]);
+  await loadKline();
+  setInterval(()=>loadRealtime('HC'), 3000);
+  setInterval(()=>loadRealtime('FU'), 3000);
+}
+bootstrap();
+</script>
 </body>
 </html>
