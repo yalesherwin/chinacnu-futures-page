@@ -3,50 +3,65 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>chinacnu 期货 · Autonomous Trading OS</title>
+  <title>chinacnu 期货 · Trading Dashboard</title>
   <style>
     :root{
-      --bg:#060b14;--panel:#0f1726;--panel2:#111d31;--line:#223554;
-      --text:#e9f0ff;--muted:#94a8c7;--cyan:#55d6ff;--green:#37d67a;--orange:#ffb648;--red:#ff5e7a;
+      --bg:#070d18;--panel:#101a2c;--panel2:#0d1626;--line:#253a5f;
+      --text:#eaf1ff;--muted:#9ab0d3;--cyan:#57d8ff;--green:#42df83;--red:#ff6380;--yellow:#ffca57;
     }
     *{box-sizing:border-box}
-    body{margin:0;font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC",sans-serif;color:var(--text);
-      background:
-      radial-gradient(1200px 500px at 15% -10%, rgba(44,98,196,.30), transparent 65%),
-      radial-gradient(900px 350px at 100% 120%, rgba(28,174,130,.25), transparent 70%),
-      var(--bg);
+    body{margin:0;color:var(--text);font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC",sans-serif;
+      background:radial-gradient(1100px 480px at 15% -10%, rgba(73,132,255,.25), transparent 60%),
+      radial-gradient(900px 360px at 100% 120%, rgba(37,173,134,.2), transparent 70%),var(--bg);
     }
-    .wrap{max-width:1200px;margin:0 auto;padding:26px}
+    .wrap{max-width:1280px;margin:0 auto;padding:22px}
     .top{display:flex;justify-content:space-between;align-items:flex-end;gap:12px;flex-wrap:wrap}
-    h1{margin:0;font-size:38px;letter-spacing:.2px}
-    .sub{color:var(--muted);margin-top:8px}
-    .badge{padding:6px 12px;border-radius:999px;border:1px solid #2e4e78;background:#0c1830;color:var(--cyan);font-weight:700;font-size:12px}
+    h1{margin:0;font-size:34px}
+    .sub{color:var(--muted);margin-top:6px}
+    .tag{font-size:12px;font-weight:700;padding:6px 10px;border:1px solid #2d558b;background:#0f2040;color:#9dd8ff;border-radius:999px}
 
-    .kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:18px}
+    .kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:14px}
     .kpi{background:linear-gradient(160deg,var(--panel),var(--panel2));border:1px solid var(--line);border-radius:14px;padding:14px}
-    .kpi .k{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.8px}
-    .kpi .v{font-size:30px;font-weight:800;margin-top:4px}
-    .kpi .t{font-size:12px;color:#9ec0ef;margin-top:4px}
+    .k{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.8px}
+    .v{font-size:28px;font-weight:800;margin-top:4px}
 
-    .grid{display:grid;grid-template-columns:1.2fr .8fr;gap:12px;margin-top:12px}
-    .card{background:linear-gradient(170deg,var(--panel),#0b1527);border:1px solid var(--line);border-radius:14px;padding:14px}
-    .card h3{margin:0 0 10px;color:#cde0ff}
+    .grid{display:grid;grid-template-columns:1.6fr .9fr;gap:12px;margin-top:12px}
+    .card{background:linear-gradient(170deg,var(--panel),var(--panel2));border:1px solid var(--line);border-radius:14px;padding:14px}
+    .card h3{margin:0 0 10px;color:#cfe1ff}
 
-    .arch{display:flex;flex-wrap:wrap;gap:8px}
-    .pill{border:1px solid #2a4f84;background:#0d203f;color:#b8d7ff;padding:6px 10px;border-radius:999px;font-size:12px;font-weight:700}
+    .kline{
+      height:350px;border:1px dashed #3a5788;border-radius:10px;
+      background:linear-gradient(180deg,#0a1220,#0b1424);
+      display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden;
+    }
+    .kline::before,.kline::after{content:"";position:absolute;inset:0;background-image:linear-gradient(to right, rgba(87,216,255,.09) 1px, transparent 1px),linear-gradient(to bottom, rgba(87,216,255,.08) 1px, transparent 1px);background-size:44px 44px;pointer-events:none}
+    .kline span{z-index:1;color:#8fb0de}
+
+    .signals{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+    .sig{border:1px solid #2f4f80;background:#10223f;border-radius:10px;padding:10px;text-align:center}
+    .lamp{width:12px;height:12px;border-radius:50%;display:inline-block;margin-right:6px}
+    .on{background:var(--green);box-shadow:0 0 8px var(--green)}
+    .wait{background:var(--yellow);box-shadow:0 0 8px var(--yellow)}
+    .off{background:var(--red);box-shadow:0 0 8px var(--red)}
 
     table{width:100%;border-collapse:collapse}
-    th,td{border:1px solid #284266;padding:9px;font-size:14px}
-    th{background:#132542;text-align:left;color:#cde0ff}
-    .up{color:var(--green);font-weight:700}.down{color:var(--red);font-weight:700}.warn{color:var(--orange);font-weight:700}
+    th,td{border:1px solid #2a456f;padding:9px;font-size:14px}
+    th{background:#132747;text-align:left}
 
-    .steps li{margin:7px 0;color:#d7e5ff}
-    .footer{margin-top:14px;color:#7f97bb;font-size:12px}
+    .risk li{margin:7px 0;color:#d5e4ff}
+    .risk b{color:#ffe8b0}
+
+    .orders{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+    .btn{border:none;border-radius:10px;padding:11px 10px;font-weight:800;color:#fff;cursor:pointer}
+    .btn.long{background:linear-gradient(180deg,#1f9f5b,#167642)}
+    .btn.short{background:linear-gradient(180deg,#b84f63,#8f3244)}
+    .btn.flat{background:linear-gradient(180deg,#5b6b8c,#404f6c)}
+    .note{color:var(--muted);font-size:12px;margin-top:8px}
 
     @media (max-width:960px){
       .kpis{grid-template-columns:repeat(2,1fr)}
       .grid{grid-template-columns:1fr}
-      h1{font-size:31px}
+      .orders{grid-template-columns:1fr}
     }
   </style>
 </head>
@@ -55,64 +70,62 @@
     <div class="top">
       <div>
         <h1>chinacnu 期货</h1>
-        <div class="sub">Autonomous Trading OS · 热卷（HC）/燃油（FU） · 研究→信号→风控→执行</div>
+        <div class="sub">实时交易驾驶舱（HC 热卷 / FU 燃油）· 包含上单、下单、平仓控制</div>
       </div>
-      <div class="badge">V2 DESIGN UPGRADE</div>
+      <div class="tag">DASHBOARD V3</div>
     </div>
 
     <div class="kpis">
-      <div class="kpi"><div class="k">MODE</div><div class="v">PAPER</div><div class="t">模拟交易先行，实盘后接</div></div>
-      <div class="kpi"><div class="k">TARGET</div><div class="v">HC · FU</div><div class="t">日盘/夜盘分时策略</div></div>
-      <div class="kpi"><div class="k">DATA</div><div class="v">RQData</div><div class="t">覆盖股/期/权/基金/指数</div></div>
-      <div class="kpi"><div class="k">RISK</div><div class="v">2%</div><div class="t">日亏阈值触发停机</div></div>
+      <div class="kpi"><div class="k">交易模式</div><div class="v">AUTO</div></div>
+      <div class="kpi"><div class="k">今日上限</div><div class="v">10单</div></div>
+      <div class="kpi"><div class="k">监控标的</div><div class="v">HC · FU</div></div>
+      <div class="kpi"><div class="k">风控状态</div><div class="v">ACTIVE</div></div>
     </div>
 
     <div class="grid">
       <div class="card">
-        <h3>策略看板（V1）</h3>
+        <h3>实时K线占位区</h3>
+        <div class="kline"><span>Realtime K-Line Placeholder（接入API后替换为实时图）</span></div>
+      </div>
+      <div class="card">
+        <h3>策略信号灯</h3>
+        <div class="signals">
+          <div class="sig"><span class="lamp on"></span>趋势做多</div>
+          <div class="sig"><span class="lamp wait"></span>观望等待</div>
+          <div class="sig"><span class="lamp off"></span>风险警戒</div>
+        </div>
+
+        <h3 style="margin-top:14px">风险面板</h3>
+        <ul class="risk">
+          <li>日内最大亏损：<b>2%</b>（触发即停机）</li>
+          <li>单品种最大持仓：<b>3手</b></li>
+          <li>单笔止损：<b>0.8%</b> / 止盈：<b>1.2%</b></li>
+          <li>每日本策略最大交易：<b>10单</b></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="grid">
+      <div class="card">
+        <h3>执行动作（上单 / 下单 / 平仓）</h3>
+        <div class="orders">
+          <button class="btn long">上单（开多）</button>
+          <button class="btn short">下单（开空）</button>
+          <button class="btn flat">平仓（全部）</button>
+        </div>
+        <div class="note">当前为前端控制台展示按钮，接入你的交易API后可映射为真实下单指令。</div>
+      </div>
+      <div class="card">
+        <h3>策略规则摘要</h3>
         <table>
-          <tr><th>品种</th><th>触发条件</th><th>动作</th><th>风控规则</th></tr>
-          <tr><td>HC 主力</td><td>EMA20 上穿 EMA60</td><td class="up">BUY</td><td>止损 0.8% / 止盈 1.2%</td></tr>
-          <tr><td>HC 主力</td><td>EMA20 下穿 EMA60</td><td class="down">SELL</td><td>单品种最大持仓 3 手</td></tr>
-          <tr><td>FU 主力</td><td>同趋势信号逻辑</td><td class="warn">BUY/SELL</td><td>日亏达 2% 自动停机</td></tr>
+          <tr><th>规则</th><th>内容</th></tr>
+          <tr><td>开多</td><td>EMA20 上穿 EMA60 + 风控通过</td></tr>
+          <tr><td>开空</td><td>EMA20 下穿 EMA60 + 风控通过</td></tr>
+          <tr><td>平仓</td><td>止损/止盈/风控停机/人工触发</td></tr>
+          <tr><td>通知</td><td>每次交易推送 Telegram</td></tr>
         </table>
       </div>
-
-      <div class="card">
-        <h3>系统架构</h3>
-        <div class="arch">
-          <span class="pill">RQData Client</span>
-          <span class="pill">Signal Engine</span>
-          <span class="pill">Risk Guard</span>
-          <span class="pill">Paper Executor</span>
-          <span class="pill">FastAPI</span>
-          <span class="pill">Deployment CI</span>
-        </div>
-      </div>
     </div>
-
-    <div class="grid">
-      <div class="card">
-        <h3>上线状态</h3>
-        <ul class="steps">
-          <li>✅ 前端页面上线完成</li>
-          <li>✅ Python 交易系统骨架完成</li>
-          <li>✅ HC/FU 策略模块与模拟执行器完成</li>
-          <li>⚠️ 下一步：接账户联调 + 回测报告 + 实盘风控审批</li>
-        </ul>
-      </div>
-      <div class="card">
-        <h3>下一阶段（V2）</h3>
-        <ul class="steps">
-          <li>接入 RQData 实账户验证</li>
-          <li>交易时段过滤（夜盘/日盘）</li>
-          <li>滑点模型与手续费精算</li>
-          <li>Dashboard 实时监控页</li>
-        </ul>
-      </div>
-    </div>
-
-    <div class="footer">风险提示：本系统用于量化研究与工程实现，不构成收益承诺或投资建议。</div>
   </div>
 </body>
 </html>
