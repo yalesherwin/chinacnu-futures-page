@@ -3,74 +3,116 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>chinacnu 期货 | 自主交易系统</title>
+  <title>chinacnu 期货 · Autonomous Trading OS</title>
   <style>
-    :root{--bg:#07111f;--card:#0f1c33;--line:#28426e;--text:#eaf2ff;--muted:#9fb4d8;--ok:#58f58a;--warn:#ffd166}
-    *{box-sizing:border-box} body{margin:0;background:radial-gradient(circle at 15% 0%,#1f3f75 0,transparent 40%),radial-gradient(circle at 100% 100%,#1e4d4a 0,transparent 45%),var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC",sans-serif}
-    .wrap{max-width:1120px;margin:auto;padding:24px}
-    h1{margin:0;font-size:36px}.sub{color:var(--muted);margin-top:6px}
-    .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:14px}
-    .card{background:rgba(15,28,51,.9);border:1px solid var(--line);border-radius:14px;padding:14px}
-    .k{color:var(--muted);font-size:13px}.v{font-size:28px;font-weight:800}
-    .section{margin-top:14px}
-    table{width:100%;border-collapse:collapse} th,td{border:1px solid #2c4674;padding:8px;font-size:14px} th{background:#132748}
-    .pill{display:inline-block;padding:4px 10px;border-radius:999px;background:#17325e;border:1px solid #2b5aa3;font-size:12px;margin-right:6px}
-    .ok{color:var(--ok)} .warn{color:var(--warn)}
-    a{color:#9dd2ff}
+    :root{
+      --bg:#060b14;--panel:#0f1726;--panel2:#111d31;--line:#223554;
+      --text:#e9f0ff;--muted:#94a8c7;--cyan:#55d6ff;--green:#37d67a;--orange:#ffb648;--red:#ff5e7a;
+    }
+    *{box-sizing:border-box}
+    body{margin:0;font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC",sans-serif;color:var(--text);
+      background:
+      radial-gradient(1200px 500px at 15% -10%, rgba(44,98,196,.30), transparent 65%),
+      radial-gradient(900px 350px at 100% 120%, rgba(28,174,130,.25), transparent 70%),
+      var(--bg);
+    }
+    .wrap{max-width:1200px;margin:0 auto;padding:26px}
+    .top{display:flex;justify-content:space-between;align-items:flex-end;gap:12px;flex-wrap:wrap}
+    h1{margin:0;font-size:38px;letter-spacing:.2px}
+    .sub{color:var(--muted);margin-top:8px}
+    .badge{padding:6px 12px;border-radius:999px;border:1px solid #2e4e78;background:#0c1830;color:var(--cyan);font-weight:700;font-size:12px}
+
+    .kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:18px}
+    .kpi{background:linear-gradient(160deg,var(--panel),var(--panel2));border:1px solid var(--line);border-radius:14px;padding:14px}
+    .kpi .k{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.8px}
+    .kpi .v{font-size:30px;font-weight:800;margin-top:4px}
+    .kpi .t{font-size:12px;color:#9ec0ef;margin-top:4px}
+
+    .grid{display:grid;grid-template-columns:1.2fr .8fr;gap:12px;margin-top:12px}
+    .card{background:linear-gradient(170deg,var(--panel),#0b1527);border:1px solid var(--line);border-radius:14px;padding:14px}
+    .card h3{margin:0 0 10px;color:#cde0ff}
+
+    .arch{display:flex;flex-wrap:wrap;gap:8px}
+    .pill{border:1px solid #2a4f84;background:#0d203f;color:#b8d7ff;padding:6px 10px;border-radius:999px;font-size:12px;font-weight:700}
+
+    table{width:100%;border-collapse:collapse}
+    th,td{border:1px solid #284266;padding:9px;font-size:14px}
+    th{background:#132542;text-align:left;color:#cde0ff}
+    .up{color:var(--green);font-weight:700}.down{color:var(--red);font-weight:700}.warn{color:var(--orange);font-weight:700}
+
+    .steps li{margin:7px 0;color:#d7e5ff}
+    .footer{margin-top:14px;color:#7f97bb;font-size:12px}
+
+    @media (max-width:960px){
+      .kpis{grid-template-columns:repeat(2,1fr)}
+      .grid{grid-template-columns:1fr}
+      h1{font-size:31px}
+    }
   </style>
 </head>
 <body>
-<div class="wrap">
-  <h1>chinacnu 期货</h1>
-  <div class="sub">热卷（HC）+ 燃油（FU）自主交易系统（研究/信号/风控/执行）</div>
-
-  <div class="grid">
-    <div class="card"><div class="k">系统模式</div><div class="v">Paper</div><div class="k">先模拟，后实盘</div></div>
-    <div class="card"><div class="k">核心标的</div><div class="v">HC · FU</div><div class="k">1分钟策略轮询</div></div>
-    <div class="card"><div class="k">数据来源</div><div class="v">RQData</div><div class="k">股票/期货多市场覆盖</div></div>
-  </div>
-
-  <div class="card section">
-    <h3>系统架构</h3>
-    <div>
-      <span class="pill">Data: RQData</span>
-      <span class="pill">Strategy: EMA趋势</span>
-      <span class="pill">Risk: 止损/限仓/日亏限制</span>
-      <span class="pill">Execution: Paper Executor</span>
-      <span class="pill">API: FastAPI</span>
+  <div class="wrap">
+    <div class="top">
+      <div>
+        <h1>chinacnu 期货</h1>
+        <div class="sub">Autonomous Trading OS · 热卷（HC）/燃油（FU） · 研究→信号→风控→执行</div>
+      </div>
+      <div class="badge">V2 DESIGN UPGRADE</div>
     </div>
-  </div>
 
-  <div class="card section">
-    <h3>策略规则（V1）</h3>
-    <table>
-      <tr><th>策略</th><th>条件</th><th>动作</th><th>风控</th></tr>
-      <tr><td>HC 趋势</td><td>EMA20 上穿 EMA60</td><td class="ok">BUY</td><td>止损0.8%，止盈1.2%</td></tr>
-      <tr><td>HC 反转</td><td>EMA20 下穿 EMA60</td><td class="warn">SELL</td><td>单品种最大3手</td></tr>
-      <tr><td>FU 趋势</td><td>同上逻辑</td><td>BUY/SELL</td><td>日内最大亏损2%停机</td></tr>
-    </table>
-  </div>
+    <div class="kpis">
+      <div class="kpi"><div class="k">MODE</div><div class="v">PAPER</div><div class="t">模拟交易先行，实盘后接</div></div>
+      <div class="kpi"><div class="k">TARGET</div><div class="v">HC · FU</div><div class="t">日盘/夜盘分时策略</div></div>
+      <div class="kpi"><div class="k">DATA</div><div class="v">RQData</div><div class="t">覆盖股/期/权/基金/指数</div></div>
+      <div class="kpi"><div class="k">RISK</div><div class="v">2%</div><div class="t">日亏阈值触发停机</div></div>
+    </div>
 
-  <div class="card section">
-    <h3>上线状态</h3>
-    <ul>
-      <li>✅ 页面已上线（本页）</li>
-      <li>✅ Python系统骨架已生成（app/data/strategy/executor）</li>
-      <li>⚠️ 实盘前需接券商/期货接口与合规风控审批</li>
-    </ul>
-  </div>
+    <div class="grid">
+      <div class="card">
+        <h3>策略看板（V1）</h3>
+        <table>
+          <tr><th>品种</th><th>触发条件</th><th>动作</th><th>风控规则</th></tr>
+          <tr><td>HC 主力</td><td>EMA20 上穿 EMA60</td><td class="up">BUY</td><td>止损 0.8% / 止盈 1.2%</td></tr>
+          <tr><td>HC 主力</td><td>EMA20 下穿 EMA60</td><td class="down">SELL</td><td>单品种最大持仓 3 手</td></tr>
+          <tr><td>FU 主力</td><td>同趋势信号逻辑</td><td class="warn">BUY/SELL</td><td>日亏达 2% 自动停机</td></tr>
+        </table>
+      </div>
 
-  <div class="card section">
-    <h3>下一步（建议）</h3>
-    <ol>
-      <li>接入 RQData 账号并验证 `/health`</li>
-      <li>跑1周 paper trading，观察回撤与胜率</li>
-      <li>加入交易时段过滤（夜盘/日盘）与滑点模型</li>
-      <li>通过风控门槛后再接实盘通道</li>
-    </ol>
-  </div>
+      <div class="card">
+        <h3>系统架构</h3>
+        <div class="arch">
+          <span class="pill">RQData Client</span>
+          <span class="pill">Signal Engine</span>
+          <span class="pill">Risk Guard</span>
+          <span class="pill">Paper Executor</span>
+          <span class="pill">FastAPI</span>
+          <span class="pill">Deployment CI</span>
+        </div>
+      </div>
+    </div>
 
-  <div class="sub">说明：本系统用于量化研究与执行工程，不构成收益承诺。</div>
-</div>
+    <div class="grid">
+      <div class="card">
+        <h3>上线状态</h3>
+        <ul class="steps">
+          <li>✅ 前端页面上线完成</li>
+          <li>✅ Python 交易系统骨架完成</li>
+          <li>✅ HC/FU 策略模块与模拟执行器完成</li>
+          <li>⚠️ 下一步：接账户联调 + 回测报告 + 实盘风控审批</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>下一阶段（V2）</h3>
+        <ul class="steps">
+          <li>接入 RQData 实账户验证</li>
+          <li>交易时段过滤（夜盘/日盘）</li>
+          <li>滑点模型与手续费精算</li>
+          <li>Dashboard 实时监控页</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="footer">风险提示：本系统用于量化研究与工程实现，不构成收益承诺或投资建议。</div>
+  </div>
 </body>
 </html>
