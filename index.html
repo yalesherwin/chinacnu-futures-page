@@ -84,6 +84,16 @@ const logBox = document.getElementById('logBox');
 const statusTag = document.getElementById('statusTag');
 function log(msg){logBox.textContent = `[${new Date().toLocaleTimeString()}] ${msg}\n` + logBox.textContent;}
 
+async function fetchWithTimeout(url, options, timeoutMs=6000){
+  const c = new AbortController();
+  const t = setTimeout(()=>c.abort(), timeoutMs);
+  try{
+    return await fetch(url, {...(options||{}), signal:c.signal});
+  } finally {
+    clearTimeout(t);
+  }
+}
+
 function pickPrice(data){
   if (!data) return null;
   if (typeof data.last === 'number') return data.last;
@@ -94,7 +104,7 @@ function pickPrice(data){
 
 async function checkHealth(){
   try{
-    const r = await fetch(`${API_BASE}/health`); const j = await r.json();
+    const r = await fetchWithTimeout(`${API_BASE}/health`, null, 6000); const j = await r.json();
     document.getElementById('backendVal').textContent = j.ok ? 'ONLINE' : 'OFFLINE';
     statusTag.textContent = j.ok ? 'API: CONNECTED' : 'API: ERROR';
   }catch(e){
@@ -106,7 +116,7 @@ async function checkHealth(){
 
 async function loadRealtime(symbol){
   try{
-    const r = await fetch(`${API_BASE}/api/market/realtime?symbol=${symbol}`);
+    const r = await fetchWithTimeout(`${API_BASE}/api/market/realtime?symbol=${symbol}`, null, 5000);
     const j = await r.json();
     if(!j.ok) { log(`${symbol}实时失败: ${j.error || 'unknown'}`); return; }
     const p = pickPrice(j.data);
@@ -151,7 +161,7 @@ function drawKline(kl){
 async function loadKline(){
   const symbol = document.getElementById('symbolSel').value;
   try{
-    const r = await fetch(`${API_BASE}/api/market/kline?symbol=${symbol}&period=1m&limit=120`);
+    const r = await fetchWithTimeout(`${API_BASE}/api/market/kline?symbol=${symbol}&period=1m&limit=120`, null, 6000);
     const j = await r.json();
     if(!j.ok){ log(`K线失败: ${j.error || 'unknown'}`); drawKline([]); return; }
     const kl = normalizeKlines(j);
@@ -164,7 +174,7 @@ async function sendOrder(side, offset){
   const symbol = document.getElementById('symbolSel').value;
   const body = { symbol, side, offset, qty: 1 };
   try{
-    const r = await fetch(`${API_BASE}/api/order`, {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(body)});
+    const r = await fetchWithTimeout(`${API_BASE}/api/order`, {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(body)}, 7000);
     const j = await r.json();
     if(j.ok){ log(`下单成功 ${symbol} ${side}/${offset} -> ${JSON.stringify(j.data)}`); }
     else { log(`下单失败 ${symbol} ${side}/${offset} -> ${j.error || 'unknown'}`); }
@@ -173,12 +183,12 @@ async function sendOrder(side, offset){
 
 async function bootstrap(){
   await checkHealth();
-  await Promise.all([loadRealtime('HC'), loadRealtime('FU')]);
+  await Promise.allSettled([loadRealtime('HC'), loadRealtime('FU')]);
   await loadKline();
   setInterval(()=>loadRealtime('HC'), 3000);
   setInterval(()=>loadRealtime('FU'), 3000);
 }
-bootstrap();
+bootstrap().catch(e=>log('初始化异常: '+e.message));
 </script>
 </body>
 </html>
