@@ -79,7 +79,7 @@
 </div>
 
 <script>
-const API_BASE = window.API_BASE || 'http://127.0.0.1:8099';
+const API_BASE = new URLSearchParams(location.search).get('api') || window.API_BASE || 'https://chinacnu-futures-system.onrender.com';
 const logBox = document.getElementById('logBox');
 const statusTag = document.getElementById('statusTag');
 function log(msg){logBox.textContent = `[${new Date().toLocaleTimeString()}] ${msg}\n` + logBox.textContent;}
