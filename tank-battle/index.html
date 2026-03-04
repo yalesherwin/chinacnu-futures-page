@@ -1,0 +1,158 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no" />
+  <title>坦克大战 · Tank Battle</title>
+  <style>
+    :root{--bg:#10161d;--panel:#1b2530;--line:#2c3b4a;--text:#e6edf3;--good:#47d17a;--bad:#ff6b6b;--warn:#ffcc66}
+    *{box-sizing:border-box} body{margin:0;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"PingFang SC",sans-serif}
+    .wrap{max-width:980px;margin:0 auto;padding:14px}
+    .top{display:flex;gap:10px;flex-wrap:wrap;align-items:center;justify-content:space-between}
+    .stats{display:flex;gap:10px;flex-wrap:wrap}
+    .chip{background:var(--panel);border:1px solid var(--line);padding:8px 10px;border-radius:10px;font-weight:700}
+    .btn{background:#2d7ef7;border:none;color:#fff;padding:10px 14px;border-radius:10px;font-weight:700}
+    .btn:active{transform:scale(.98)}
+    canvas{display:block;width:100%;max-width:960px;aspect-ratio:4/3;background:#111;border:1px solid var(--line);border-radius:14px;margin:12px 0;touch-action:none}
+    .ctrl{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+    .pad,.act{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:10px}
+    .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+    .key{min-height:46px;border:none;border-radius:10px;font-weight:800;background:#33465a;color:#fff}
+    .key:active{background:#4f6580}
+    .act .key{width:100%}
+    .ov{position:fixed;inset:0;background:rgba(0,0,0,.62);display:none;align-items:center;justify-content:center;padding:16px}
+    .card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:20px;max-width:420px;width:100%;text-align:center}
+  </style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top">
+    <div class="stats">
+      <div class="chip">分数: <span id="score">0</span></div>
+      <div class="chip">生命: <span id="hp">3</span></div>
+      <div class="chip">敌军: <span id="left">8</span></div>
+    </div>
+    <button class="btn" id="restart">重开</button>
+  </div>
+  <canvas id="game" width="960" height="720"></canvas>
+
+  <div class="ctrl">
+    <div class="pad">
+      <div class="grid">
+        <div></div><button class="key" data-k="ArrowUp">↑</button><div></div>
+        <button class="key" data-k="ArrowLeft">←</button><button class="key" data-k="Space">开火</button><button class="key" data-k="ArrowRight">→</button>
+        <div></div><button class="key" data-k="ArrowDown">↓</button><div></div>
+      </div>
+    </div>
+    <div class="act">
+      <button class="key" data-k="Space">发射炮弹</button>
+    </div>
+  </div>
+</div>
+
+<div class="ov" id="overlay"><div class="card"><h2 id="title">游戏结束</h2><p id="desc"></p><button class="btn" id="again">再来一局</button></div></div>
+
+<script>
+const cv = document.getElementById('game'), ctx = cv.getContext('2d');
+const W=cv.width,H=cv.height,T=40;
+const keys={};
+const state={score:0,hp:3,totalEnemy:8,win:false,over:false};
+const blocks=[]; // 障碍
+for(let i=0;i<10;i++) blocks.push({x:120+i*70,y:260,w:40,h:40});
+for(let i=0;i<7;i++) blocks.push({x:220+i*80,y:480,w:40,h:40});
+
+function tank(x,y,c,isEnemy=false){return{x,y,w:34,h:34,dir:0,speed:isEnemy?1.2:2.3,color:c,reload:0,isEnemy,ai:Math.random()*120+30,hp:1};}
+let player,enemies,bullets;
+function reset(){
+  state.score=0;state.hp=3;state.over=false;state.win=false;
+  player=tank(W/2-17,H-70,'#4ade80'); player.dir=0;
+  enemies=[]; bullets=[];
+  for(let i=0;i<state.totalEnemy;i++) enemies.push(tank(70+i*100,60,'#f87171',true));
+  renderHUD(); hideOverlay();
+}
+function renderHUD(){
+  score.textContent=state.score; hp.textContent=state.hp; left.textContent=enemies.length;
+}
+function rectHit(a,b){return a.x<a.x+a.w && a.x<b.x+b.w && a.x+a.w>b.x && a.y+a.h>b.y && a.y<b.y+b.h;}
+function collides(r){
+  if(r.x<0||r.y<0||r.x+r.w>W||r.y+r.h>H) return true;
+  return blocks.some(b=> r.x < b.x+b.w && r.x+r.w > b.x && r.y < b.y+b.h && r.y+r.h > b.y);
+}
+function moveTank(t,dir){
+  const vx=[0,1,0,-1][dir]*t.speed, vy=[-1,0,1,0][dir]*t.speed;
+  const old={x:t.x,y:t.y}; t.x+=vx; t.y+=vy; t.dir=dir;
+  if(collides(t)){t.x=old.x; t.y=old.y;}
+}
+function fire(t){
+  if(t.reload>0) return;
+  const v=5, dx=[0,1,0,-1][t.dir], dy=[-1,0,1,0][t.dir];
+  bullets.push({x:t.x+t.w/2-4,y:t.y+t.h/2-4,w:8,h:8,vx:dx*v,vy:dy*v,fromEnemy:t.isEnemy});
+  t.reload=t.isEnemy?60:18;
+}
+function drawTank(t){ctx.fillStyle=t.color;ctx.fillRect(t.x,t.y,t.w,t.h);ctx.fillStyle='#111';
+  const cx=t.x+t.w/2, cy=t.y+t.h/2; ctx.beginPath(); ctx.arc(cx,cy,6,0,Math.PI*2); ctx.fill();
+  ctx.strokeStyle='#ddd'; ctx.lineWidth=4; ctx.beginPath();
+  const d=[[0,-14],[14,0],[0,14],[-14,0]][t.dir]; ctx.moveTo(cx,cy); ctx.lineTo(cx+d[0],cy+d[1]); ctx.stroke(); }
+
+function step(){
+  if(state.over) return draw();
+  // 玩家
+  if(keys.ArrowUp) moveTank(player,0); else if(keys.ArrowRight) moveTank(player,1); else if(keys.ArrowDown) moveTank(player,2); else if(keys.ArrowLeft) moveTank(player,3);
+  if(keys.Space) fire(player);
+  if(player.reload>0) player.reload--;
+
+  // 敌人AI
+  enemies.forEach(e=>{
+    if(e.reload>0) e.reload--;
+    e.ai--; if(e.ai<=0){e.dir=(Math.random()*4)|0; e.ai=Math.random()*120+30;}
+    moveTank(e,e.dir);
+    if(Math.random()<0.015) fire(e);
+  });
+
+  // 子弹
+  bullets.forEach(b=>{b.x+=b.vx; b.y+=b.vy;});
+  bullets = bullets.filter(b=> b.x>-20 && b.y>-20 && b.x<W+20 && b.y<H+20);
+
+  // 子弹撞墙
+  bullets = bullets.filter(b=> !blocks.some(o=> b.x<o.x+o.w && b.x+b.w>o.x && b.y<o.y+o.h && b.y+b.h>o.y));
+
+  // 命中检测
+  bullets.forEach(b=>{
+    if(!b.fromEnemy){
+      enemies.forEach(e=>{ if(e.hp>0 && b.x<e.x+e.w && b.x+b.w>e.x && b.y<e.y+e.h && b.y+b.h>e.y){e.hp=0; b.dead=1; state.score+=100;}});
+    }else{
+      if(b.x<player.x+player.w && b.x+b.w>player.x && b.y<player.y+player.h && b.y+b.h>player.y){ b.dead=1; state.hp--; }
+    }
+  });
+  bullets = bullets.filter(b=>!b.dead);
+  enemies = enemies.filter(e=>e.hp>0);
+
+  if(state.hp<=0){state.over=true;state.win=false;showOverlay('失败了','生命耗尽，点击再来一局');}
+  if(enemies.length===0){state.over=true;state.win=true;showOverlay('胜利！','你已消灭全部敌军');}
+  renderHUD(); draw();
+}
+
+function draw(){
+  ctx.clearRect(0,0,W,H);
+  ctx.fillStyle='#1a242f'; blocks.forEach(b=>ctx.fillRect(b.x,b.y,b.w,b.h));
+  drawTank(player); enemies.forEach(drawTank);
+  ctx.fillStyle='#ffd166'; bullets.forEach(b=>ctx.fillRect(b.x,b.y,b.w,b.h));
+}
+function showOverlay(t,d){title.textContent=t;desc.textContent=d;overlay.style.display='flex';}
+function hideOverlay(){overlay.style.display='none';}
+
+window.addEventListener('keydown',e=>{ if(e.code in keys || ['ArrowUp','ArrowDown','ArrowLeft','ArrowRight','Space'].includes(e.code)){ e.preventDefault(); keys[e.code]=true; }});
+window.addEventListener('keyup',e=>{ keys[e.code]=false; });
+
+document.querySelectorAll('[data-k]').forEach(btn=>{
+  const k=btn.dataset.k;
+  const on=()=>keys[k]=true, off=()=>keys[k]=false;
+  btn.addEventListener('touchstart',e=>{e.preventDefault();on();},{passive:false});
+  btn.addEventListener('touchend',e=>{e.preventDefault();off();},{passive:false});
+  btn.addEventListener('mousedown',on); btn.addEventListener('mouseup',off); btn.addEventListener('mouseleave',off);
+});
+restart.onclick=reset; again.onclick=reset;
+reset(); setInterval(step,1000/60);
+</script>
+</body>
+</html>
