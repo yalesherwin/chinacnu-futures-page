@@ -1,0 +1,15 @@
+
+:root{--bg1:#1a0f1f;--bg2:#2b1331;--card:#ffffff14;--text:#ffeef8;--accent:#ff77b4;--gold:#ffd166}
+*{box-sizing:border-box}body{margin:0;font-family:"PingFang SC",-apple-system,BlinkMacSystemFont,sans-serif;color:var(--text);background:radial-gradient(circle at 20% 20%,#3d1640,transparent 40%),linear-gradient(135deg,var(--bg1),var(--bg2));min-height:100vh}
+.wrap{max-width:900px;margin:0 auto;padding:24px}
+.card{background:var(--card);border:1px solid #ffffff26;border-radius:18px;padding:22px;backdrop-filter:blur(3px)}
+h1{margin:0 0 10px;font-size:34px}.sub{opacity:.9}
+.nav{display:flex;flex-wrap:wrap;gap:8px;margin-top:16px}
+.btn{display:inline-block;padding:10px 14px;border-radius:12px;background:#ffffff20;color:#fff;text-decoration:none;border:1px solid #ffffff2e}
+.btn:hover{background:#ffffff30}.hero{font-size:20px;line-height:1.8}
+.footer{margin-top:18px;opacity:.8;font-size:14px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:10px}
+.tile{padding:12px;border-radius:12px;background:#ffffff14;border:1px solid #ffffff1f;text-decoration:none;color:#fff}
+.small{opacity:.88}
+.heart{position:fixed;top:-10px;color:#ff8fc6;animation:fall linear forwards;opacity:.85;pointer-events:none}
+@keyframes fall{to{transform:translateY(105vh) rotate(360deg);opacity:.2}}
