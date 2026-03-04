@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1" />
+  <title>中学数学闯关</title>
+  <style>
+    :root{--bg:#0f172a;--card:#1e293b;--text:#e2e8f0;--ok:#22c55e;--bad:#ef4444;--pri:#3b82f6}
+    *{box-sizing:border-box} body{margin:0;background:linear-gradient(180deg,#0f172a,#111827);font-family:"PingFang SC",-apple-system,sans-serif;color:var(--text)}
+    .wrap{max-width:860px;margin:0 auto;padding:16px}
+    .card{background:rgba(30,41,59,.95);border:1px solid #334155;border-radius:14px;padding:16px}
+    h1{margin:0 0 10px;font-size:28px}.row{display:flex;gap:10px;flex-wrap:wrap}.chip{background:#0b1220;border:1px solid #334155;border-radius:999px;padding:6px 10px}
+    .q{font-size:30px;font-weight:800;margin:16px 0}.opts{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+    button{border:none;border-radius:10px;padding:12px 14px;font-weight:700;cursor:pointer}
+    .opt{background:#1d4ed8;color:#fff}.opt:active{transform:scale(.98)}
+    .ctl{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}.pri{background:var(--pri);color:#fff}.sec{background:#334155;color:#fff}
+    .msg{margin-top:10px;font-weight:700;min-height:24px}
+    .ok{color:var(--ok)}.bad{color:var(--bad)}
+    .small{opacity:.85;font-size:14px}
+    @media(max-width:720px){.opts{grid-template-columns:1fr}.q{font-size:24px}}
+  </style>
+</head>
+<body>
+<div class="wrap">
+  <div class="card">
+    <h1>中学数学闯关（中国）</h1>
+    <div class="row">
+      <div class="chip">关卡：<span id="lvl">1</span>/3</div>
+      <div class="chip">题号：<span id="idx">1</span>/10</div>
+      <div class="chip">得分：<span id="score">0</span></div>
+      <div class="chip">连对：<span id="streak">0</span></div>
+    </div>
+    <div class="small" style="margin-top:8px">范围：七八年级常见题型（有理数、方程、一次函数）</div>
+    <div class="q" id="q">准备开始</div>
+    <div class="opts" id="opts"></div>
+    <div class="msg" id="msg"></div>
+    <div class="ctl">
+      <button class="pri" id="start">开始/下一题</button>
+      <button class="sec" id="skip">跳过</button>
+      <button class="sec" id="restart">重新闯关</button>
+    </div>
+  </div>
+</div>
+<script>
+const S={level:1,index:0,total:10,score:0,streak:0,cur:null,locked:true};
+const el=id=>document.getElementById(id);
+const rnd=(a,b)=>Math.floor(Math.random()*(b-a+1))+a;
+function shuffle(arr){for(let i=arr.length-1;i>0;i--){const j=rnd(0,i);[arr[i],arr[j]]=[arr[j],arr[i]]}return arr}
+
+function genL1(){ // 有理数+简算
+  const a=rnd(-20,20),b=rnd(-20,20),op=Math.random()<0.5?'+':'-';
+  const ans=op==='+'?a+b:a-b;
+  return {q:`计算：${a} ${op} (${b}) = ?`,ans};
+}
+function genL2(){ // 一元一次方程
+  const x=rnd(-9,12),k=rnd(2,6),b=rnd(-10,10),c=k*x+b;
+  return {q:`解方程：${k}x ${b>=0?'+':''}${b} = ${c}`,ans:x};
+}
+function genL3(){ // 一次函数
+  const k=rnd(-5,5)||2,b=rnd(-8,8),x=rnd(-4,6),y=k*x+b;
+  return {q:`已知 y=${k}x ${b>=0?'+':''}${b}，当 x=${x} 时，y=?`,ans:y};
+}
+
+function makeQuestion(){
+  const g=S.level===1?genL1:S.level===2?genL2:genL3;
+  const {q,ans}=g();
+  const set=new Set([ans]);
+  while(set.size<4){set.add(ans+rnd(-10,10));}
+  const options=shuffle([...set]);
+  S.cur={q,ans,options};
+}
+
+function render(){
+  el('lvl').textContent=S.level; el('idx').textContent=Math.min(S.index+1,S.total); el('score').textContent=S.score; el('streak').textContent=S.streak;
+  el('q').textContent=S.cur?S.cur.q:'点击开始';
+  const box=el('opts'); box.innerHTML='';
+  if(!S.cur) return;
+  S.cur.options.forEach(v=>{
+    const b=document.createElement('button'); b.className='opt'; b.textContent=v;
+    b.onclick=()=>pick(v); box.appendChild(b);
+  })
+}
+
+function next(){
+  if(S.index>=S.total){
+    if(S.level<3){S.level++; S.index=0; el('msg').innerHTML=`<span class='ok'>进入第 ${S.level} 关！</span>`;}
+    else {el('msg').innerHTML=`<span class='ok'>通关完成！总分 ${S.score}</span>`; S.locked=true; return;}
+  }
+  makeQuestion(); S.locked=false; render();
+}
+
+function pick(v){
+  if(S.locked||!S.cur) return;
+  S.locked=true;
+  if(v===S.cur.ans){S.score+=10+Math.min(S.streak,5);S.streak++; el('msg').innerHTML="<span class='ok'>✅ 正确！</span>";}
+  else{S.streak=0; el('msg').innerHTML=`<span class='bad'>❌ 错了，正确答案：${S.cur.ans}</span>`;}
+  S.index++;
+}
+
+el('start').onclick=()=>{ if(!S.cur||S.locked){ next(); } else { el('msg').textContent='请先作答或跳过'; } };
+el('skip').onclick=()=>{ if(!S.cur||S.locked){next();return;} S.streak=0; S.index++; el('msg').innerHTML="<span class='bad'>已跳过</span>"; S.locked=true; };
+el('restart').onclick=()=>{Object.assign(S,{level:1,index:0,score:0,streak:0,cur:null,locked:true}); el('msg').textContent='已重置'; render();};
+render();
+</script>
+</body>
+</html>
